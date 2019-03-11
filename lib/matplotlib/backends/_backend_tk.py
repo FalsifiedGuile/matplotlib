@@ -208,7 +208,8 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkcanvas.bind("<Enter>", self.enter_notify_event)
         self._tkcanvas.bind("<Leave>", self.leave_notify_event)
         self._tkcanvas.bind("<KeyRelease>", self.key_release)
-        for name in "<Button-1>", "<Button-2>", "<Button-3>":
+        self._tkcanvas.bind("<Button-1>", self.button_press_focus)
+        for name in "<Button-2>", "<Button-3>":
             self._tkcanvas.bind(name, self.button_press_event)
         for name in "<Double-Button-1>", "<Double-Button-2>", "<Double-Button-3>":
             self._tkcanvas.bind(name, self.button_dblclick_event)
@@ -357,12 +358,16 @@ class FigureCanvasTk(FigureCanvasBase):
         y = self.figure.bbox.height - event.y
         FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
+    def button_press_focus(self, event, dblclick=False):
+        self.get_tk_widget().focus_force()
+        self.button_press_event(event, dblclick)
+
     def button_press_event(self, event, dblclick=False):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y
         num = getattr(event, 'num', None)
-
+        self.get_tk_widget().focus_force()
         if sys.platform == 'darwin':
             # 2 and 3 were reversed on the OSX platform I tested under tkagg.
             if num == 2:
